@@ -1,0 +1,16 @@
+{
+  "name": "guangdong-medical-tender-platform",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "广东全省医疗设备招标信息汇总平台 — 纯前端静态站（原生 ESM + TailwindCSS CDN）+ GitHub Actions 自动抓取与部署",
+  "scripts": {
+    "test": "node tests/validate-data.cjs",
+    "check": "node tests/syntax-check.mjs",
+    "scrape": "node scripts/scrape.cjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

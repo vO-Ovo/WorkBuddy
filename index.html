@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>广东全省医疗设备招标信息汇总平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body class="bg-gradient-to-b from-sky-50 via-blue-50 to-cyan-50 text-slate-700 antialiased">
+  <div class="flex flex-col md:flex-row h-screen overflow-hidden">
+
+    <!-- ===== 左侧侧边栏（窄屏转为顶部导航） ===== -->
+    <aside class="w-full md:w-64 shrink-0 bg-white/90 backdrop-blur border-b md:border-b-0 md:border-r border-sky-100 flex flex-col max-h-[42vh] md:max-h-none">
+      <div class="px-5 py-4 border-b border-sky-100 flex items-center gap-3">
+        <!-- 淡色小星球 + 星星 装饰 -->
+        <svg viewBox="0 0 64 64" class="w-11 h-11 shrink-0 drop-shadow-sm" aria-hidden="true">
+          <circle cx="28" cy="30" r="14" fill="#7dd3fc"/>
+          <ellipse cx="28" cy="30" rx="22" ry="7" fill="none" stroke="#fde68a" stroke-width="3" transform="rotate(-20 28 30)"/>
+          <path d="M50 12 l2 5 5 2 -5 2 -2 5 -2-5 -5-2 5-2 z" fill="#fcd34d"/>
+          <circle cx="52" cy="44" r="3" fill="#f9a8d4"/>
+          <circle cx="44" cy="50" r="2.5" fill="#a5b4fc"/>
+        </svg>
+        <div>
+          <h1 class="text-base font-bold text-sky-800 leading-tight">广东全省医疗设备<br>招标信息汇总平台</h1>
+          <p class="text-[11px] text-sky-400 mt-0.5">广东 21 市 · 医疗设备招投标公告</p>
+        </div>
+      </div>
+      <nav id="nav" aria-label="公告分类导航" class="flex-1 overflow-y-auto md:overflow-y-auto overflow-x-auto md:overflow-x-hidden py-3 px-3 flex md:flex-col gap-2 md:space-y-1"></nav>
+      <div class="px-5 py-3 border-t md:border-t border-sky-100 text-xs text-slate-400">
+        数据总量：<span id="totalCount" class="font-semibold text-slate-600">0</span> 条（真实公告）· 更新于 <span id="updatedAt" class="text-slate-500">—</span>
+      </div>
+    </aside>
+
+    <!-- ===== 右侧主区域 ===== -->
+    <main class="flex-1 flex flex-col overflow-hidden min-h-0">
+      <!-- 顶部搜索 -->
+      <header class="px-6 py-4 bg-white/90 backdrop-blur border-b border-sky-100 shrink-0">
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+            </svg>
+          </span>
+          <label class="sr-only" for="search">搜索公告</label>
+          <input id="search" type="text" autocomplete="off"
+            aria-label="搜索公告标题、地区、设备、类型或日期"
+            placeholder="搜索标题 / 地区 / 设备 / 类型 / 日期…"
+            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-sky-200 bg-sky-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400 text-sm" />
+        </div>
+        <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
+          <span id="resultMeta" aria-live="polite">共 0 条</span>
+          <div class="flex items-center gap-3">
+            <span id="activeCat" class="text-blue-600 font-medium"></span>
+            <button id="refreshBtn" title="重新载入最新数据"
+              class="px-2.5 py-1 rounded-md bg-sky-100 text-sky-700 hover:bg-sky-200 transition font-medium flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a8 8 0 0114-3M20 15a8 8 0 01-14 3" />
+              </svg>
+              刷新
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- 列表 -->
+      <section id="list" class="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-3"></section>
+
+      <!-- 分页 -->
+      <footer id="pagination" class="px-6 py-3 bg-white/90 backdrop-blur border-t border-sky-100 shrink-0 flex items-center justify-center space-x-1"></footer>
+
+      <!-- 淡色小星球 + 星星 水印装饰 -->
+      <svg viewBox="0 0 120 120" class="pointer-events-none fixed bottom-4 right-4 w-28 h-28 opacity-[0.07]" aria-hidden="true">
+        <circle cx="38" cy="48" r="15" fill="#7dd3fc"/>
+        <ellipse cx="38" cy="48" rx="24" ry="7" fill="none" stroke="#fde68a" stroke-width="3" transform="rotate(-18 38 48)"/>
+        <path d="M86 18 l3 7 7 3 -7 3 -3 7 -3-7 -7-3 7-3 z" fill="#fcd34d"/>
+        <path d="M92 62 l2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5-6 -6-2.5 6-2.5 z" fill="#f9a8d4"/>
+        <circle cx="78" cy="92" r="3.5" fill="#a5b4fc"/>
+        <circle cx="104" cy="40" r="2.5" fill="#7dd3fc"/>
+      </svg>
+    </main>
+  </div>
+
+  <!-- ===== 详情弹窗 ===== -->
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/40"></div>
+    <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col modal-card">
+      <div class="flex items-start justify-between px-6 py-4 border-b border-slate-200">
+        <h2 id="modalTitle" class="text-lg font-bold text-slate-800 pr-4 leading-snug"></h2>
+        <button id="modalClose" class="shrink-0 text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+      </div>
+      <div id="modalBody" class="px-6 py-5 overflow-y-auto text-sm text-slate-600 space-y-4"></div>
+      <div class="px-6 py-4 border-t border-slate-200 flex justify-end">
+        <a id="modalLink" href="#" target="_blank" rel="noopener noreferrer"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 transition shadow-sm">
+          跳转原始公告链接
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 数据文件：经典脚本注入 window.ANNOUNCEMENTS / window.DATA_UPDATED（定时任务自动写入） -->
+  <script src="js/data.js"></script>
+  <!-- 业务主入口：原生 ES Module（需经 http(s) 访问，file:// 双击会因 CORS 失败） -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 数据质量门禁：任何脏数据（缺字段/重复 id/非法日期或链接）都让 CI 失败，阻断合并。
+      - name: 数据质量门禁
+        run: node tests/validate-data.cjs
+
+      # ESM 语法校验：对所有 src/*.js 跑 node --check（项目声明 type:module，按 ES Module 解析）。
+      - name: ESM 语法校验
+        run: node tests/syntax-check.mjs

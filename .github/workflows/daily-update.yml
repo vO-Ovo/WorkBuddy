@@ -1,0 +1,64 @@
+# .github/workflows/daily-update.yml
+# 广东全省医疗设备招标信息汇总平台 — 每日自动抓取与部署
+#
+# 触发：
+#   1. 定时任务（北京时间每天 9:00 与 15:00，对应 UTC 1:00 与 7:00）
+#   2. 手动触发（在 GitHub 仓库 → Actions → Run workflow）
+#
+# 流程：检出代码 → 数据质量门禁 → 抓取最新公告 → 提交推送 → GitHub Pages 自动重新部署
+#
+# 费用：GitHub 公开仓库 Actions 完全免费；私有仓库 2000 分钟/月免费，本任务每月约 60 分钟。
+
+name: Daily Data Update & Deploy
+
+on:
+  schedule:
+    # 北京时间 9:00 = UTC 1:00
+    - cron: '0 1 * * *'
+    # 北京时间 15:00 = UTC 7:00
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 配置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 数据质量门禁
+        run: node tests/validate-data.cjs
+
+      - name: 抓取最新公告
+        run: node scripts/scrape.cjs
+
+      - name: 提交并推送
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add js/data.js
+          if git diff --staged --quiet; then
+            echo "无新数据，跳过提交"
+            exit 0
+          fi
+          git commit -m "chore: 自动扩充广东省医疗设备招标公告 ($(date -u +%Y-%m-%d))"
+          git push
+
+      - name: 部署成功提示
+        if: success()
+        run: echo "✅ 数据更新已推送，GitHub Pages 将自动重新部署（约 1-2 分钟）"
